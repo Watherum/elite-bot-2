@@ -1,0 +1,28 @@
+# Environment Config
+# You will need to copy this file into app.properties with the properties filled in for this to work for you
+
+BOT_USERNAME=
+OAUTH_TOKEN=
+CHANNEL_NAME=
+CHANNEL_URL=
+SEASON_NUMBER=
+SEASON_ENABLED=false
+WIN_MODIFIER=1
+STREAK_MODIFIER=2
+TWITCH_CLIENT_ID=
+TWITCH_CLIENT_SECRET=
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+DISCORD_CLIENT_TOKEN=
+DISCORD_COMMAND_CHANNEL_ID=
+DISCORD_LEADERBOARD_STREAK_CHANNEL_ID=
+DISCORD_LEADERBOARD_WINS_CHANNEL_ID=
+DISCORD_SEASON_RANKINGS_CHANNEL_ID=
+postgresdb.type = postgresql:
+postgresdb.driver = org.postgresql.Driver
+postgresdb.user =
+postgresdb.host = localhost
+postgresdb.password =
+postgresdb.name =
+pgport=5432
+OUTPUT_DIR=C:/Absolute/Path/To/OUTPUT/DIRECTORY
