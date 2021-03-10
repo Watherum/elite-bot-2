@@ -146,7 +146,26 @@ public class Elitebot {
 
     public void twitchCommandHandler(IRCMessageEvent event) {
 
+        if (event == null) {
+            return;
+        }
+
+        if (event.getCommandType().toLowerCase().equals("join")) {
+            return;
+        }
+
+        if (event.getCommandType().toLowerCase().equals("userstate")) {
+            return;
+        }
+
+        if (event.getCommandType().toLowerCase().equals("roomstate")) {
+            return;
+        }
+
         try {
+            LOG.info( event.getUser().getName() );
+
+
             String message = event.getMessage().get().trim();
             if (message.charAt(0) != '!') {
                 return;
@@ -470,6 +489,14 @@ public class Elitebot {
                         + " minutes from now. That is approximately " +
                         endTime.toString();
                 sendMessageToTwitchChat(response);
+            }
+
+            if (splitMessage[0].equals("!joinPWVB")) {
+                sendMessageToTwitchChat("!join");
+            }
+
+            if (splitMessage[0].equals("!next")) {
+                sendMessageToTwitchChat("!next");
             }
 
             if (splitMessage[0].equals("!calcstats")) {
