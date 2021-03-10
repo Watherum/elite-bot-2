@@ -163,7 +163,7 @@ public class Elitebot {
         }
 
         try {
-            LOG.info( event.getUser().getName() );
+//            LOG.info( event.getUser().getName() );
 
 
             String message = event.getMessage().get().trim();
