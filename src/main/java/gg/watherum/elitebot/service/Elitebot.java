@@ -344,7 +344,12 @@ public class Elitebot {
                 this.streakLog.add(this.streak);
                 String name = splitMessage[1].trim();
                 this.streak = new Streak(name, Integer.valueOf(splitMessage[2]));
-                Competitor newCompetitor = getOrCreateCompetitor(name); //Added to the competitorMap
+                boolean resetLosses = Boolean.valueOf( splitMessage[3] );
+                Competitor newCompetitor = getOrCreateCompetitor(name);//Added to the competitorMap
+                if (resetLosses) {
+                    newCompetitor.setLosses(0);
+                    this.competitorMap.replace(newCompetitor.getName(), newCompetitor);
+                }
                 writeStreak();
                 writeCompetitor(newCompetitor);
                 sendMessageToTwitchChat(name + " is now on a streak!");
@@ -426,6 +431,7 @@ public class Elitebot {
                     response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
                 }
                 updateCompOneWins();
+                updateGameNumber();
                 sendMessageToTwitchChat(response);
             }
 
@@ -438,6 +444,7 @@ public class Elitebot {
                     response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
                 }
                 updateCompOneWins();
+                updateGameNumber();
                 sendMessageToTwitchChat(response);
             }
 
@@ -537,7 +544,7 @@ public class Elitebot {
                                 "----------------\n" +
                                 "STREAK COMMANDS \n" +
                                 "----------------\n" +
-                                "!initstreak | Writes a file used on stream. Sets the name and wins of the player e.g.(!initstreak Watherum 1)\n" +
+                                "!initstreak | Writes a file used on stream. Sets the name and wins of the player boolean resets losses e.g.(!initstreak Watherum 1 false)\n" +
                                 "!sw | Increment the wins of the victor. No arguments to this command\n" +
                                 "!sl | Decrement the wins of the victor. No arguments to this command\n" +
                                 "!updatesub | update the subcription status of a competitor e.g (!updatesub Watherum)" +
@@ -815,7 +822,7 @@ public class Elitebot {
 
     private void writeStreak() {
         writeToFile(this.streak.getVictor(), outputDir + "streak/victor.txt");
-        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile("Steak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void updateStreakWins() {
@@ -823,7 +830,7 @@ public class Elitebot {
     }
 
     private void writeCount() {
-        writeToFile(this.count.getInformation(), outputDir + "count/info.txt");
+        writeToFile(this.count.getInformation() + " = ", outputDir + "count/info.txt");
         writeToFile(this.count.getCount().toString(), outputDir + "count/number.txt");
     }
 
@@ -832,18 +839,26 @@ public class Elitebot {
     }
 
     private void writeCompetitor(Competitor competitor) {
+        Integer lossLimit = 3;
+        if (competitor.isSubscriber()) {
+            lossLimit = 5;
+        }
         writeToFile(competitor.getName(), outputDir + "competitor/name.txt");
-        writeToFile(competitor.getLosses().toString(), outputDir + "competitor/losses.txt");
-        writeToFile(competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
-        writeToFile(competitor.getSeasonPoints().toString(), outputDir + "competitor/seasonal_points.txt");
+        writeToFile("L = " + competitor.getLosses().toString() + "/" + lossLimit.toString(), outputDir + "competitor/losses.txt");
+        writeToFile("EP = " + competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
+        writeToFile("SP = " + competitor.getSeasonPoints().toString(), outputDir + "competitor/seasonal_points.txt");
     }
 
     private void updateCompetitorsEstimatedPoints(Competitor competitor) {
-        writeToFile(competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
+        writeToFile("EP = " + competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
     }
 
     private void updateLosses(Competitor competitor) {
-        writeToFile(competitor.getLosses().toString(), outputDir + "competitor/losses.txt");
+        Integer lossLimit = 3;
+        if (competitor.isSubscriber()) {
+            lossLimit = 5;
+        }
+        writeToFile("L = " + competitor.getLosses().toString() + "/" + lossLimit.toString(), outputDir + "competitor/losses.txt");
     }
 
     private void writeCompetitiveSet() {
