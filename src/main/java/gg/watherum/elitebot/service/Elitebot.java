@@ -819,7 +819,7 @@ public class Elitebot {
     }
 
     private void updateStreakWins() {
-        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile("Steak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void writeCount() {
