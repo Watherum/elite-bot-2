@@ -2,6 +2,7 @@
 *.class
 
 *.properties
+*.txt
 
 .idea/
 target/

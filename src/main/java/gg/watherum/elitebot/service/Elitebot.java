@@ -480,7 +480,13 @@ public class Elitebot {
 
             if (splitMessage[0].equals("!setcomplosses")) {
                 if (this.competitorMap.containsKey(splitMessage[1].trim())) {
-                    Competitor competitor = this.competitorMap.get(splitMessage[1]);
+                    Competitor competitor;
+                    if (this.competitorMap.containsKey(splitMessage[1].trim())) {
+                        competitor = this.competitorMap.get(splitMessage[1].trim());
+                    }
+                    else {
+                        competitor = getOrCreateCompetitor(splitMessage[1].trim());
+                    }
                     competitor.setLosses(Integer.valueOf(splitMessage[2]));
                     if (splitMessage[1].trim().equals(this.streak.getVictor())) {
                         updateLosses(competitor);
@@ -544,6 +550,7 @@ public class Elitebot {
                                 "----------------\n" +
                                 "STREAK COMMANDS \n" +
                                 "----------------\n" +
+                                "!setcomplosses | set the losses of a competitor e.g(!setcomplosses Watherum 1)" +
                                 "!initstreak | Writes a file used on stream. Sets the name and wins of the player boolean resets losses e.g.(!initstreak Watherum 1 false)\n" +
                                 "!sw | Increment the wins of the victor. No arguments to this command\n" +
                                 "!sl | Decrement the wins of the victor. No arguments to this command\n" +
