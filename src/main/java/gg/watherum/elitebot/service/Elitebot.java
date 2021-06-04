@@ -486,6 +486,7 @@ public class Elitebot {
                     }
                     else {
                         competitor = getOrCreateCompetitor(splitMessage[1].trim());
+                        this.competitorMap.put(competitor.getName(),competitor);
                     }
                     competitor.setLosses(Integer.valueOf(splitMessage[2]));
                     if (splitMessage[1].trim().equals(this.streak.getVictor())) {
@@ -788,13 +789,13 @@ public class Elitebot {
 
         Integer wins = 1;
         if (winsLeaderboard.containsKey(competitor.getName())) {
-            wins = winsLeaderboard.get(competitor.getName());
+            wins = winsLeaderboard.get(competitor.getName()) + streak.getConsecutiveWins();
         }
-        Integer highestStreak = 0;
+        Integer highestStreak = 1;
         if (streakLeaderboard.containsKey(competitor.getName())) {
             highestStreak = streakLeaderboard.get(competitor.getName());
         }
-        if (streak.getVictor().equals(competitor.getName()) && streak.getConsecutiveWins() > highestStreak) {
+        if (streak.getVictor().equals(competitor.getName()) && streak.getConsecutiveWins() >= highestStreak) {
             highestStreak = streak.getConsecutiveWins();
         }
 
@@ -829,11 +830,11 @@ public class Elitebot {
 
     private void writeStreak() {
         writeToFile(this.streak.getVictor(), outputDir + "streak/victor.txt");
-        writeToFile("Steak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void updateStreakWins() {
-        writeToFile("Steak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void writeCount() {
@@ -895,7 +896,7 @@ public class Elitebot {
     }
 
     private void updateWinner() {
-        writeToFile(this.competitiveSet.getWinner(), outputDir + "set/winner.txt");
+        writeToFile(this.competitiveSet.getWinner() + " Won!", outputDir + "set/winner.txt");
     }
 
     private void writeToFile(String text, String file) {
