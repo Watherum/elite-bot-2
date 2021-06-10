@@ -457,6 +457,7 @@ public class Elitebot {
                     response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
                 }
                 updateCompTwoWins();
+                updateGameNumber();
                 sendMessageToTwitchChat(response);
             }
 
@@ -469,6 +470,7 @@ public class Elitebot {
                     response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
                 }
                 updateCompTwoWins();
+                updateGameNumber();
                 sendMessageToTwitchChat(response);
             }
 
