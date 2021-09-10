@@ -99,6 +99,8 @@ public class Elitebot {
 
     private ArrayList<Streak> streakLog = new ArrayList<>();
 
+    private ArrayList<Streak> setLog = new ArrayList<>();
+
     private LocalDate leaderboardDate = LocalDate.now();
 
 
@@ -173,18 +175,36 @@ public class Elitebot {
 
             String[] splitMessage = message.split(" ");
 
+            if (message.equals("!options")) {
+                String help =
+                        "COMMANDS  " +
+                                "------------------  " +
+                                "| !join | join the queue ---------------------------" +
+                                "| !leave | leave the queue if you need to ---------" +
+                                "| !list | see the entire list -------------------------" +
+                                "| !pos | see your position in the list --------------" +
+                                "| !info | get the arena id and passcode when its your turn ";
+                sendMessageToTwitchChat(help);
+            }
+
             if (message.equals("!help")) {
                 String help =
-                        "-------------------\n" +
                         "ELITEBOT COMMANDS \n" +
-                        "-------------------\n" +
-                        "!arena | Get the ArenaID \n" +
-                        "!elitejoin | Join the singles set queue, get the arenaID and passcode (!elitejoin Your_Name)\n" +
-                        "!competitorqueue | See the status of the player queue\n" +
-                        "!points | Get your points for this season (!points Your_Name)\n" +
-                        "!addlevel | add a level to the level queue \n" +
-                        "!levelqueue | see the status of the level queue\n";
+                                "-------" +
+                                "| !arena | Get the ArenaID " +
+                                "| !pass | Get the passcode " +
+                                "| !info | get the arena id and passcode " +
+                                "| !points | Get your points for this season (!points Your_Name) " +
+                                "| !addlevel | add a level to the level queue " +
+                                "| !levelqueue | see the status of the level queue " +
+                                "| !competitorqueue | See the status of the player queue " +
+                                "| !elitejoin | Join the singles set queue, get the arenaID and passcode (!elitejoin Your_Name) ";
                 sendMessageToTwitchChat(help);
+            }
+
+            if (message.equals("!info")) {
+                String response = "The Arena ID is " + this.arena + " and the passcode is " + this.passcode + " @" + event.getUser().getName();
+                sendMessageToTwitchChat(response);
             }
 
             if (splitMessage[0].equals("!elitejoin")) {
@@ -237,14 +257,21 @@ public class Elitebot {
                 }
             }
 
+            if (message.equals("!pass")) {
+                if (passcode.isEmpty()) {
+                    sendMessageToTwitchChat("There is not passcode or it has not be set " + " @" + event.getUserName());
+                } else {
+                    sendMessageToTwitchChat("The passcode is " + this.passcode + " @" + event.getUserName());
+                }
+            }
+
             if (message.equals("!arena")) {
                 if (arena.equals("nj")) {
                     sendMessageToTwitchChat("The arena is currently not joinable");
                 } else {
                     sendMessageToTwitchChat("The arena id is " + this.arena + " @" + event.getUserName());
                 }
-            }
-            else if (splitMessage[0].contains("!arena")) {
+            } else if (splitMessage[0].contains("!arena")) {
                 if (arena.equals("nj")) {
                     sendMessageToTwitchChat("The arena is currently not joinable");
                 } else {
@@ -272,8 +299,7 @@ public class Elitebot {
                 this.arena = splitMessage[1];
                 if (this.arena.equals("nj")) {
                     sendMessageToTwitchChat("The arena is not currently joinable");
-                }
-                else {
+                } else {
                     sendMessageToTwitchChat("The arena code has been updated. Use !arena for the ID");
                 }
                 sendMessageToADiscordChannel(this.discordCommandChannel, "The Arena has been updated");
@@ -357,7 +383,7 @@ public class Elitebot {
                 this.streakLog.add(this.streak);
                 String name = splitMessage[1].trim();
                 this.streak = new Streak(name, Integer.valueOf(splitMessage[2]));
-                boolean resetLosses = Boolean.valueOf( splitMessage[3] );
+                boolean resetLosses = Boolean.valueOf(splitMessage[3]);
                 Competitor newCompetitor = getOrCreateCompetitor(name);//Added to the competitorMap
                 if (resetLosses) {
                     newCompetitor.setLosses(0);
@@ -498,10 +524,9 @@ public class Elitebot {
                     Competitor competitor;
                     if (this.competitorMap.containsKey(splitMessage[1].trim())) {
                         competitor = this.competitorMap.get(splitMessage[1].trim());
-                    }
-                    else {
+                    } else {
                         competitor = getOrCreateCompetitor(splitMessage[1].trim());
-                        this.competitorMap.put(competitor.getName(),competitor);
+                        this.competitorMap.put(competitor.getName(), competitor);
                     }
                     competitor.setLosses(Integer.valueOf(splitMessage[2]));
                     if (splitMessage[1].trim().equals(this.streak.getVictor())) {
@@ -553,7 +578,7 @@ public class Elitebot {
 
             if (splitMessage[0].equals("!elitehelp")) {
                 String generalCommands =
-                                "-----------------\n" +
+                        "-----------------\n" +
                                 "GENERAL COMMANDS \n" +
                                 "-----------------\n" +
                                 "!elitehelp | Return a list of commands. No arguments to this command\n" +
@@ -563,7 +588,7 @@ public class Elitebot {
                                 "!editpass | sets the passcode / password for the arena or lobby\n\n";
 
                 String streakCommands =
-                                "----------------\n" +
+                        "----------------\n" +
                                 "STREAK COMMANDS \n" +
                                 "----------------\n" +
                                 "!setcomplosses | set the losses of a competitor e.g(!setcomplosses Watherum 1)" +
@@ -576,7 +601,7 @@ public class Elitebot {
                                 "!clearstreak | clears the streak and the files on stream. No arguments to this command\n\n";
 
                 String setCommands =
-                                "-------------\n" +
+                        "-------------\n" +
                                 "SET COMMANDS \n" +
                                 "-------------\n" +
                                 "!initbestof | Initialize the set files for a best of e.g.(!initbestof 5 c1name c2name)\n" +
@@ -588,7 +613,7 @@ public class Elitebot {
                                 "!c2l | Decrements the wins of the 2nd competitor. No arguments to this command\n\n";
 
                 String queueCommands =
-                                "------------------------------\n" +
+                        "------------------------------\n" +
                                 "QUEUE COMMANDS \n" +
                                 "------------------------------\n" +
                                 "!togglecompqueue | Opens or closes the competitor queue \n" +
@@ -601,7 +626,7 @@ public class Elitebot {
                                 "!competitorqueue | prints the current order of people in the queue\n\n";
 
                 String countCommands =
-                                "-------------------\n" +
+                        "-------------------\n" +
                                 "COUNT COMMANDS \n" +
                                 "-------------------\n" +
                                 "!ic | Increments the number of the count \n" +
@@ -609,7 +634,7 @@ public class Elitebot {
                                 "!setcount | Sets the number of the count \n";
 
                 String twitchCommands =
-                                "-------------------\n" +
+                        "-------------------\n" +
                                 "TWITCH COMMANDS \n" +
                                 "-------------------\n" +
                                 "!arena | Get the ArenaID \n" +
