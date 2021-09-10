@@ -80,7 +80,7 @@ public class Elitebot {
 
     Logger LOG = LoggerFactory.getLogger(Elitebot.class);
 
-    private String arena = "";
+    private String arena = "nj";
     private String passcode = "";
 
     private Queue<String> competitorQueue = new LinkedList<String>();
@@ -244,6 +244,13 @@ public class Elitebot {
                     sendMessageToTwitchChat("The arena id is " + this.arena + " @" + event.getUserName());
                 }
             }
+            else if (splitMessage[0].contains("!arena")) {
+                if (arena.equals("nj")) {
+                    sendMessageToTwitchChat("The arena is currently not joinable");
+                } else {
+                    sendMessageToTwitchChat("The arena id is " + this.arena + " " + splitMessage[1]);
+                }
+            }
             LOG.info("* Executed " + message + " command");
         } catch (NoSuchElementException e) {
             //Catch Errors related to empty chat on boot
@@ -263,8 +270,14 @@ public class Elitebot {
 
             if (splitMessage[0].equals("!editarena")) {
                 this.arena = splitMessage[1];
+                if (this.arena.equals("nj")) {
+                    sendMessageToTwitchChat("The arena is not currently joinable");
+                }
+                else {
+                    sendMessageToTwitchChat("The arena code has been updated. Use !arena for the ID");
+                }
                 sendMessageToADiscordChannel(this.discordCommandChannel, "The Arena has been updated");
-                sendMessageToTwitchChat("The arena code has been updated. Use !arena for the ID");
+
             }
 
             if (splitMessage[0].equals("!editpass")) {
