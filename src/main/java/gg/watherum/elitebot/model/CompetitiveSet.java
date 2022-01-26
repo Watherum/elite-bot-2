@@ -11,6 +11,7 @@ public class CompetitiveSet {
     private Integer firstTo = 0;
     private Integer gameNumber = 0;
     private String winner = "";
+    private String setRound = "";
     private boolean setComplete = false;
 
     public CompetitiveSet() {}
@@ -192,5 +193,13 @@ public class CompetitiveSet {
 
     public void setSetComplete(boolean setComplete) {
         this.setComplete = setComplete;
+    }
+
+    public String getSetRound() {
+        return setRound;
+    }
+
+    public void setSetRound(String setRound) {
+        this.setRound = setRound;
     }
 }

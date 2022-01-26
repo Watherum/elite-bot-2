@@ -3,6 +3,7 @@ package gg.watherum.elitebot.service;
 import com.github.philippheuer.events4j.core.EventManager;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import com.github.twitch4j.common.enums.CommandPermission;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Message;
@@ -86,11 +87,8 @@ public class Elitebot {
     private String arena = "nj";
     private String passcode = "";
 
-    private Queue<String> competitorQueue = new LinkedList<String>();
-    private boolean addCompetitorsToQueue = true;
-
-    private Queue<String> levelQueue = new LinkedList<String>();
-    private boolean addLevelsToQueue = true;
+    private String arena2 = "nj";
+    private String passcode2 = "";
 
     private Count count = new Count(" ", 0);
 
@@ -179,75 +177,43 @@ public class Elitebot {
 
             String[] splitMessage = message.split(" ");
 
-            if (message.equals("!sw") && event.getUser().getId().equals(twitchChatID)) {
-                this.streak.incrementWins();
-                updateStreakWins();
+            if (message.equals("!sw") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                incrementCompStreak();
             }
 
-            if (message.equals("!sl") && event.getUser().getId().equals(twitchChatID)) {
-                this.streak.decrementWins();
-                updateStreakWins();
+            if (message.equals("!sl") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                decrementCompStreak();
             }
 
-            if (message.equals("!c1w") && event.getUser().getId().equals(twitchChatID)) {
-                boolean setCompleted = this.competitiveSet.incrementCompOneWins();
-                String response = this.competitiveSet.getCompetitorOneName() +
-                        " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
-                }
-                updateCompOneWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+            if (message.equals("!c1w") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) ) ) {
+                increaseCompeOneWinsInSet();
             }
 
-            if (message.equals("!c1l") && event.getUser().getId().equals(twitchChatID)) {
-                boolean setCompleted = this.competitiveSet.decrementCompOneWins();
-                String response = this.competitiveSet.getCompetitorOneName() +
-                        " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
-                }
-                updateCompOneWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+            if (message.equals("!c1l") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                decrementCompOneWinsInSet();
             }
 
-            if (message.equals("!clearset") && event.getUser().getId().equals(twitchChatID)) {
-                this.competitiveSet = new CompetitiveSet();
-                sendMessageToADiscordChannel(this.discordCommandChannel, "The set has been cleared");
-                writeCompetitiveSet();
+            if (message.equals("!clearset") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                clearCompSet();
             }
 
-            if (message.equals("!c2w") && event.getUser().getId().equals(twitchChatID)) {
-                boolean setCompleted = this.competitiveSet.incrementCompTwoWins();
-                String response = this.competitiveSet.getCompetitorTwoName() +
-                        " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
-                }
-                updateCompTwoWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+            if (message.equals("!c2w") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                increaseCompTwoWinsInSet();
             }
 
-            if (message.equals("!c2l") && event.getUser().getId().equals(twitchChatID)) {
-                boolean setCompleted = this.competitiveSet.decrementCompTwoWins();
-                String response = this.competitiveSet.getCompetitorTwoName() +
-                        " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
-                }
-                updateCompTwoWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+            if (message.equals("!c2l") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
+                decrementCompTwoWinsInSet();
             }
 
-            if (message.equals("!nj") && event.getUser().getId().equals(twitchChatID)) {
+            if (message.equals("!nj") && ( event.getClientPermissions().contains(CommandPermission.MODERATOR)
+                    || event.getClientPermissions().contains(CommandPermission.BROADCASTER) )) {
                 this.arena = "nj";
                 sendMessageToTwitchChat("The arena is not currently joinable");
             }
@@ -272,54 +238,24 @@ public class Elitebot {
                 sendMessageToTwitchChat(response);
             }
 
-            if (splitMessage[0].equals("!elitejoin")) {
-
-                if (addCompetitorsToQueue) {
-                    competitorQueue.add(event.getUser().getName());
-                    String response = "I've added you to the queue @" + event.getUser().getName() +
-                            "! The Arena ID is " + this.arena + " and the passcode is " + this.passcode;
-                    sendMessageToTwitchChat(response);
-                }
-            }
-
             if (splitMessage[0].equals("!points")) {
-                Competitor competitor;
-                if (competitorMap.containsKey(splitMessage[1].trim())) {
-                    competitor = competitorMap.get(splitMessage[1].trim());
-                } else {
-                    competitor = getOrCreateCompetitor(splitMessage[1].trim());
-                }
-                sendMessageToTwitchChat(competitor.getName()
-                        + " has " + competitor.getSeasonPoints() + " point(s)");
-            }
 
-            if (splitMessage[0].equals("!addlevel")) {
-
-                if (addLevelsToQueue) {
-                    levelQueue.add(splitMessage[1]);
-                    String response = "I've added your level to the queue @" + event.getUser().getName();
-                    sendMessageToTwitchChat(response);
+                if (splitMessage.length == 1) {
+                    sendMessageToTwitchChat("The proper usage of this command is !points Your_name_as_it_appears_on_the_overlay");
                 }
-            }
-
-            if (splitMessage[0].equals("!competitorqueue")) {
-                String response = "";
-                if (competitorQueue.isEmpty()) {
-                    sendMessageToTwitchChat("The competitor queue is empty!");
-                } else {
-                    response = getCompetitorQueuePreview();
-                    sendMessageToTwitchChat(response);
+                else {
+                    Competitor competitor;
+                    if (competitorMap.containsKey(splitMessage[1].trim())) {
+                        competitor = competitorMap.get(splitMessage[1].trim());
+                    } else {
+                        competitor = getOrCreateCompetitor(splitMessage[1].trim());
+                    }
+                    int estimatedPoints = estimateCompetitorsNewPoints(competitor) + competitor.getSeasonPoints();
+                    sendMessageToTwitchChat(competitor.getName()
+                            + " has " + estimatedPoints + " point(s)");
                 }
-            }
 
-            if (splitMessage[0].equals("!levelqueue")) {
-                String response = "";
-                if (levelQueue.isEmpty()) {
-                    sendMessageToTwitchChat("The level queue is empty!");
-                } else {
-                    response = getLevelQueuePreview();
-                    sendMessageToTwitchChat(response);
-                }
+
             }
 
             if (message.equals("!pass")) {
@@ -330,17 +266,13 @@ public class Elitebot {
                 }
             }
 
-            if (message.equals("!arena")) {
+            if (splitMessage[0].contains("!arena")) {
                 if (arena.equals("nj")) {
                     sendMessageToTwitchChat("The arena is currently not joinable");
+                } else if (splitMessage.length == 2) {
+                    sendMessageToTwitchChat("The arena id is " + this.arena + " @" + splitMessage[1]);
                 } else {
                     sendMessageToTwitchChat("The arena id is " + this.arena + " @" + event.getUserName());
-                }
-            } else if (splitMessage[0].contains("!arena")) {
-                if (arena.equals("nj")) {
-                    sendMessageToTwitchChat("The arena is currently not joinable");
-                } else {
-                    sendMessageToTwitchChat("The arena id is " + this.arena + " " + splitMessage[1]);
                 }
             }
             LOG.info("* Executed " + message + " command");
@@ -372,7 +304,7 @@ public class Elitebot {
             }
 
             if (splitMessage[0].equals("!editround")) {
-                this.competitiveSet.setSetRound( splitMessage[1] );
+                this.competitiveSet.setSetRound(message.getContent().replaceAll("!editround",""));
                 updateSetRound();
             }
 
@@ -380,29 +312,6 @@ public class Elitebot {
                 this.passcode = splitMessage[1];
                 sendMessageToADiscordChannel(this.discordCommandChannel, "The passcode has been updated");
                 sendMessageToTwitchChat("The passcode has been updated. Use !pass for the passcode");
-            }
-
-            if (splitMessage[0].equals("!elitemjoin")) {
-                this.competitorQueue.add(splitMessage[1]);
-                String response = "I've added " + splitMessage[1] + " to the queue!";
-                sendMessageToADiscordChannel(this.discordCommandChannel, response);
-                sendMessageToTwitchChat(response);
-            }
-
-            if (splitMessage[0].equals("!togglecompqueue")) {
-                this.addCompetitorsToQueue = !this.addCompetitorsToQueue;
-            }
-
-            if (splitMessage[0].equals("!togglelevelqueue")) {
-                this.addLevelsToQueue = !this.addLevelsToQueue;
-            }
-
-            if (splitMessage[0].equals("!competitorqueue")) {
-                sendMessageToADiscordChannel(this.discordCommandChannel, getCompetitorQueuePreview());
-            }
-
-            if (splitMessage[0].equals("!levelqueue")) {
-                sendMessageToADiscordChannel(this.discordCommandChannel, getLevelQueuePreview());
             }
 
             if (splitMessage[0].equals("!setcount")) {
@@ -420,16 +329,6 @@ public class Elitebot {
             if (splitMessage[0].equals("!dc")) {
                 this.count.decrementCount();
                 updateCountNumber();
-            }
-
-            if (splitMessage[0].equals("!nextlevel")) {
-                sendMessageToADiscordChannel(this.discordCommandChannel, "The level is " + this.levelQueue.poll());
-            }
-
-            if (splitMessage[0].equals("!nextcomp")) {
-                String response = "The next competitor is " + this.competitorQueue.poll();
-                sendMessageToTwitchChat(response);
-                sendMessageToADiscordChannel(this.discordCommandChannel, response);
             }
 
             if (splitMessage[0].equals("!logstreak")) {
@@ -459,25 +358,18 @@ public class Elitebot {
                     newCompetitor.setLosses(0);
                     this.competitorMap.replace(newCompetitor.getName(), newCompetitor);
                 }
+                estimateCompetitorsNewPoints(newCompetitor);
                 writeStreak();
                 writeCompetitor(newCompetitor);
                 sendMessageToTwitchChat(name + " is now on a streak!");
             }
 
             if (splitMessage[0].equals("!sw")) {
-                this.streak.incrementWins();
-                Competitor competitor = this.competitorMap.get(this.streak.getVictor());
-                competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor, this.streak));
-                updateStreakWins();
-                updateCompetitorsEstimatedPoints(competitor);
+                incrementCompStreak();
             }
 
             if (splitMessage[0].equals("!sl")) {
-                this.streak.decrementWins();
-                Competitor competitor = this.competitorMap.get(this.streak.getVictor());
-                competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor, this.streak));
-                updateStreakWins();
-                updateCompetitorsEstimatedPoints(competitor);
+                decrementCompStreak();
             }
 
             if (splitMessage[0].equals("!updatesub")) {
@@ -487,8 +379,6 @@ public class Elitebot {
             }
 
             if (splitMessage[0].equals("!initbestof")) {
-//                this.setLog.add(this.competitiveSet);
-//                this.competitiveSet = new CompetitiveSet();
                 this.competitiveSet.setUpBestOf(Integer.valueOf(splitMessage[1]));
                 this.competitiveSet.setCompetitorOneName(splitMessage[2]);
                 this.competitiveSet.setCompetitorTwoName(splitMessage[3]);
@@ -518,77 +408,24 @@ public class Elitebot {
                 writeCompetitiveSet();
             }
 
-            if (splitMessage[0].equals("!bestofpopwath")) {
-                this.competitiveSet.setUpBestOf(Integer.valueOf(splitMessage[1]));
-                this.competitiveSet.setCompetitorOneName("Watherum");
-                this.competitiveSet.setCompetitorTwoName(competitorQueue.poll());
-
-                String response = "This is a Best of " + this.competitiveSet.getBestOf()
-                        + ". Competitors need to get " +
-                        this.competitiveSet.getWinCondition() + " wins! "
-                        + this.competitiveSet.getCompetitorOneName() + " & " +
-                        this.competitiveSet.getCompetitorTwoName() + " good luck!";
-
-                sendMessageToTwitchChat(response);
-                writeCompetitiveSet();
-            }
-
             if (splitMessage[0].equals("!c1w")) {
-                boolean setCompleted = this.competitiveSet.incrementCompOneWins();
-                String response = this.competitiveSet.getCompetitorOneName() +
-                        " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
-                }
-                updateCompOneWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+                increaseCompeOneWinsInSet();
             }
 
             if (splitMessage[0].equals("!c1l")) {
-                boolean setCompleted = this.competitiveSet.decrementCompOneWins();
-                String response = this.competitiveSet.getCompetitorOneName() +
-                        " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
-                }
-                updateCompOneWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+                decrementCompOneWinsInSet();
             }
 
             if (splitMessage[0].equals("!c2w")) {
-                boolean setCompleted = this.competitiveSet.incrementCompTwoWins();
-                String response = this.competitiveSet.getCompetitorTwoName() +
-                        " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
-                }
-                updateCompTwoWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+                increaseCompTwoWinsInSet();
             }
 
             if (splitMessage[0].equals("!c2l")) {
-                boolean setCompleted = this.competitiveSet.decrementCompTwoWins();
-                String response = this.competitiveSet.getCompetitorTwoName() +
-                        " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
-                if (setCompleted) {
-                    updateWinner();
-                    response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
-                }
-                updateCompTwoWins();
-                updateGameNumber();
-                sendMessageToTwitchChat(response);
+                decrementCompTwoWinsInSet();
             }
 
             if (splitMessage[0].equals("!clearset")) {
-                this.competitiveSet = new CompetitiveSet();
-                sendMessageToADiscordChannel(this.discordCommandChannel, "The set has been cleared");
-                writeCompetitiveSet();
+                clearCompSet();
             }
 
             if (splitMessage[0].equals("!setcomplosses")) {
@@ -734,6 +571,80 @@ public class Elitebot {
         }
     }
 
+    private void incrementCompStreak() {
+        this.streak.incrementWins();
+        Competitor competitor = this.competitorMap.get(this.streak.getVictor());
+        competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor));
+        updateStreakWins();
+        updateCompetitorsEstimatedPoints(competitor);
+    }
+
+    private void decrementCompStreak() {
+        this.streak.decrementWins();
+        Competitor competitor = this.competitorMap.get(this.streak.getVictor());
+        competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor));
+        updateStreakWins();
+        updateCompetitorsEstimatedPoints(competitor);
+    }
+
+    private void clearCompSet() {
+        this.competitiveSet = new CompetitiveSet();
+        sendMessageToADiscordChannel(this.discordCommandChannel, "The set has been cleared");
+        writeCompetitiveSet();
+    }
+
+    private void increaseCompeOneWinsInSet() {
+        boolean setCompleted = this.competitiveSet.incrementCompOneWins();
+        String response = this.competitiveSet.getCompetitorOneName() +
+                " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
+        if (setCompleted) {
+            updateWinner();
+            response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
+        }
+        updateCompOneWins();
+        updateGameNumber();
+        sendMessageToTwitchChat(response);
+    }
+
+    private void increaseCompTwoWinsInSet() {
+        boolean setCompleted = this.competitiveSet.incrementCompTwoWins();
+        String response = this.competitiveSet.getCompetitorTwoName() +
+                " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
+        if (setCompleted) {
+            updateWinner();
+            response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
+        }
+        updateCompTwoWins();
+        updateGameNumber();
+        sendMessageToTwitchChat(response);
+    }
+
+    private void decrementCompOneWinsInSet() {
+        boolean setCompleted = this.competitiveSet.decrementCompOneWins();
+        String response = this.competitiveSet.getCompetitorOneName() +
+                " now has " + this.competitiveSet.getCompetitorOneWins() + " win(s)!";
+        if (setCompleted) {
+            updateWinner();
+            response = "The set is over! The winner is " + this.competitiveSet.getCompetitorOneName() + " !";
+        }
+        updateCompOneWins();
+        updateGameNumber();
+        sendMessageToTwitchChat(response);
+    }
+
+    private void decrementCompTwoWinsInSet() {
+        boolean setCompleted = this.competitiveSet.decrementCompTwoWins();
+        String response = this.competitiveSet.getCompetitorTwoName() +
+                " now has " + this.competitiveSet.getCompetitorTwoWins() + " win(s)!";
+        if (setCompleted) {
+            updateWinner();
+            response = "The set is over! The winner is " + this.competitiveSet.getCompetitorTwoName() + " !";
+        }
+        updateCompTwoWins();
+        updateGameNumber();
+        sendMessageToTwitchChat(response);
+    }
+
     private Competitor getOrCreateCompetitor(String name) {
 
         if (this.competitorMap.containsKey(name)) {
@@ -758,7 +669,7 @@ public class Elitebot {
         if (seasonPoints != null) {
             competitor.setSeasonPoints(seasonPoints);
         }
-        competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor, this.streak));
+        competitor.setEstimatedPoints(estimateCompetitorsNewPoints(competitor));
     }
 
     private void calculateAndUpdateSeasonRecords(Map<String, Integer> streakLeaderboard,
@@ -896,49 +807,31 @@ public class Elitebot {
         return sortedMap;
     }
 
-    private Integer estimateCompetitorsNewPoints(Competitor competitor, Streak streak) {
+    private Integer estimateCompetitorsNewPoints(Competitor competitor) {
+        Integer wins = 0;
+        Integer highestStreak = 0;
+        if (this.streak.getVictor().equals(competitor.getName())) {
+            wins = this.streak.getConsecutiveWins();
+            highestStreak = this.streak.getConsecutiveWins();
+        }
+
         Map<String, Integer> winsLeaderboard = calculateWinsLeaderboard();
         Map<String, Integer> streakLeaderboard = calculateStreakLeaderboard();
 
-        Integer wins = 1;
         if (winsLeaderboard.containsKey(competitor.getName())) {
-            wins = winsLeaderboard.get(competitor.getName()) + streak.getConsecutiveWins();
+            wins = wins + winsLeaderboard.get(competitor.getName());
         }
-        Integer highestStreak = 1;
         if (streakLeaderboard.containsKey(competitor.getName())) {
+            if (this.streak.getVictor().equals(competitor.getName()) && this.streak.getConsecutiveWins() > streakLeaderboard.get(competitor.getName())) {
+                streakLeaderboard.replace(this.streak.getVictor(), this.streak.getConsecutiveWins());
+            }
             highestStreak = streakLeaderboard.get(competitor.getName());
         }
-        if (streak.getVictor().equals(competitor.getName()) && streak.getConsecutiveWins() >= highestStreak) {
-            highestStreak = streak.getConsecutiveWins();
-        }
-
         return (wins * this.winModifier) + (highestStreak * this.streakModifier);
     }
 
     private void updateCompetitorMap(Competitor competitor) {
         this.competitorMap.replace(competitor.getName(), competitor);
-    }
-
-    private String getCompetitorQueuePreview() {
-        String response = "";
-        if (this.competitorQueue.isEmpty()) {
-            return response;
-        }
-        for (String competitor : this.competitorQueue) {
-            response = response + competitor + ", ";
-        }
-        return response;
-    }
-
-    private String getLevelQueuePreview() {
-        String response = "";
-        if (this.competitorQueue.isEmpty()) {
-            return response;
-        }
-        for (String level : this.levelQueue) {
-            response = response + level + ", ";
-        }
-        return response;
     }
 
     private void writeStreak() {
