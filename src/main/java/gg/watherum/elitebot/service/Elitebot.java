@@ -270,7 +270,7 @@ public class Elitebot {
                 if (arena.equals("nj")) {
                     sendMessageToTwitchChat("The arena is currently not joinable");
                 } else if (splitMessage.length == 2) {
-                    sendMessageToTwitchChat("The arena id is " + this.arena + " @" + splitMessage[1]);
+                    sendMessageToTwitchChat("The arena id is " + this.arena + " " + splitMessage[1]);
                 } else {
                     sendMessageToTwitchChat("The arena id is " + this.arena + " @" + event.getUserName());
                 }
