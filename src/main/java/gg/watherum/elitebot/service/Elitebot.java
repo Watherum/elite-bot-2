@@ -836,11 +836,11 @@ public class Elitebot {
 
     private void writeStreak() {
         writeToFile(this.streak.getVictor(), outputDir + "streak/victor.txt");
-        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile("Streak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void updateStreakWins() {
-        writeToFile(this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
+        writeToFile("Streak = " + this.streak.getConsecutiveWins().toString(), outputDir + "streak/wins.txt");
     }
 
     private void writeCount() {
@@ -861,10 +861,14 @@ public class Elitebot {
         writeToFile("L = " + competitor.getLosses().toString() + "/" + lossLimit.toString(), outputDir + "competitor/losses.txt");
         writeToFile("EP = " + competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
         writeToFile("SP = " + competitor.getSeasonPoints().toString(), outputDir + "competitor/seasonal_points.txt");
+        int totalPoints = competitor.getEstimatedPoints() + competitor.getSeasonPoints();
+        writeToFile("TP = " + totalPoints, outputDir + "competitor/total_points.txt");
     }
 
     private void updateCompetitorsEstimatedPoints(Competitor competitor) {
         writeToFile("EP = " + competitor.getEstimatedPoints().toString(), outputDir + "competitor/estimated_points.txt");
+        int totalPoints = competitor.getEstimatedPoints() + competitor.getSeasonPoints();
+        writeToFile("TP = " + totalPoints, outputDir + "competitor/total_points.txt");
     }
 
     private void updateLosses(Competitor competitor) {

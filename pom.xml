@@ -17,19 +17,19 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<c3p0.version>0.9.5.5</c3p0.version>
-		<log4j.version>2.17.1</log4j.version>
+		<log4j.version>2.17.2</log4j.version>
 		<jcl-over-slf4j.version>1.7.36</jcl-over-slf4j.version>
 		<slf4j.version>1.7.36</slf4j.version>
-		<postgresql.version>42.3.3</postgresql.version>
-		<spring.version>5.3.17</spring.version>
-		<spring-boot.version>2.6.5</spring-boot.version>
+		<postgresql.version>42.3.6</postgresql.version>
+		<spring.version>5.3.20</spring.version>
+		<spring-boot.version>2.7.0</spring-boot.version>
 		<spring-boot-maven-plugin.version>2.6.6</spring-boot-maven-plugin.version>
 		<discord4j.version>3.2.2</discord4j.version>
-		<twitch4j.version>1.9.0</twitch4j.version>
+		<twitch4j.version>1.10.0</twitch4j.version>
 		<credentialmanager.version>0.1.2</credentialmanager.version>
-		<jackson-databdind.version>2.13.2.2</jackson-databdind.version>
-		<jackson.version>2.13.2</jackson.version>
-		<caffeine.version>3.0.6</caffeine.version>
+		<jackson-databdind.version>2.13.3</jackson-databdind.version>
+		<jackson.version>2.13.3</jackson.version>
+		<caffeine.version>2.9.3</caffeine.version>
 	</properties>
 
 	<repositories>
@@ -114,6 +114,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
+			<version>5.3.20</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jdbc -->
