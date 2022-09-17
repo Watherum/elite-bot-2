@@ -3,6 +3,7 @@ package gg.watherum.elitebot.service;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
+import discord4j.discordjson.json.MessageData;
 import gg.watherum.elitebot.configuration.DiscordEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,13 @@ public class DiscordMessageCreateListener implements DiscordEventListener<Messag
 
         try {
             Message eventMessage = event.getMessage();
+//            String content = eventMessage.getContent();
 
             if (!eventMessage.getChannelId().equals(Snowflake.of(discordCommandChannelID))) {
                 return Mono.empty();
             }
 
-            if (eventMessage.getContent().charAt(0) != '!') {
+            if (eventMessage.getContent().isEmpty() || eventMessage.getContent().charAt(0) != '!') {
                 return Mono.empty();
             }
 
