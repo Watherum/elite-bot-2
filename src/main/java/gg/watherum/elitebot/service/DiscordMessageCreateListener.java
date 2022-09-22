@@ -3,10 +3,9 @@ package gg.watherum.elitebot.service;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
-import discord4j.discordjson.json.MessageData;
 import gg.watherum.elitebot.configuration.DiscordEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class DiscordMessageCreateListener implements DiscordEventListener<MessageCreateEvent> {
 
-    Logger LOG = LoggerFactory.getLogger(DiscordEventListener.class);
+    Logger LOG = LogManager.getLogger(DiscordEventListener.class);
 
     @Value("${DISCORD_COMMAND_CHANNEL_ID}")
     private String discordCommandChannelID;

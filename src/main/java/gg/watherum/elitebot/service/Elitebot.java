@@ -11,8 +11,8 @@ import discord4j.rest.entity.RestChannel;
 import gg.watherum.elitebot.dao.competitor.SqlCompetitorDao;
 import gg.watherum.elitebot.dao.leaderboards.SqlLeaderboardDao;
 import gg.watherum.elitebot.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -82,7 +82,7 @@ public class Elitebot {
     private SqlCompetitorDao sqlCompetitorDao;
     private SqlLeaderboardDao sqlLeaderboardDao;
 
-    Logger LOG = LoggerFactory.getLogger(Elitebot.class);
+    Logger LOG = LogManager.getLogger(Elitebot.class);
 
     private String arena = "nj";
     private String passcode = "";

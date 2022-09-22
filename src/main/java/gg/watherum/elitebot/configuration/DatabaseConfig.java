@@ -1,8 +1,8 @@
 package gg.watherum.elitebot.configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Configuration
 public class DatabaseConfig
 {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
+    private static final Logger LOG = LogManager.getLogger(DatabaseConfig.class);
 
     /** PostgreSQL Database Configuration */
     @Value("${postgresdb.driver}") private String dbDriver;
@@ -62,10 +62,10 @@ public class DatabaseConfig
             pool.setDriverClass(dbDriver);
         }
         catch (PropertyVetoException ex) {
-            logger.error("Error when setting the database driver " + dbDriver + "{}", ex.getMessage());
+            LOG.error("Error when setting the database driver " + dbDriver + "{}", ex.getMessage());
         }
         pool.setJdbcUrl(String.format(jdbcUrlTemplate, dbType, dbHost, dbName));
-        logger.info("Connecting to Postgres: " + pool.getJdbcUrl());
+        LOG.info("Connecting to Postgres: " + pool.getJdbcUrl());
         pool.setUser(dbUser);
         pool.setPassword(dbPass);
         pool.setInitialPoolSize(poolInitialSize);
